@@ -1,0 +1,12 @@
+Import-Module GroupPolicy
+
+$gpos = Get-GPO -All
+$info = foreach ($gpo in $gpos)
+{
+    Get-GPPermissions -Guid $gpo.Id -All | Select-Object `
+    @{n='GPOName';e={$gpo.DisplayName}},
+    @{n='AccountName';e={$_.Trustee.Name}},
+    @{n='AccountType';e={$_.Trustee.SidType.ToString()}},
+    @{n='Permissions';e={$_.Permission}}
+}
+$info | Export-Csv -Path 'd:\gp2\GPOPermissions.csv' -NoTypeInformation
